@@ -1,9 +1,10 @@
 
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, UseInterceptors } from "@nestjs/common";
 import { UserService } from "./users.service";
 import { User } from "./users.model";
 
 @Controller('users')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
@@ -17,7 +18,7 @@ export class UserController {
     }
 
     @Get(':id')
-    async getUser(@Param() userId: string): Promise<{message: string; user: User}> {
+    async getUser(@Param('id') userId: string): Promise<{message: string; user: User}> {
         const user = await this.userService.getUser(userId);
         return {
             message: `Usuário encontrado com sucesso.`,
