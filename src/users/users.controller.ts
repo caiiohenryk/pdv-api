@@ -1,7 +1,8 @@
 
-import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, UseInterceptors } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Get, Param, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 import { UserService } from "./users.service";
 import { User } from "./users.model";
+import { AuthGuard } from "@auth/guards/auth.guard";
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -18,6 +19,7 @@ export class UserController {
     }
 
     @Get(':id')
+    @UseGuards(AuthGuard)
     async getUser(@Param('id') userId: string): Promise<{message: string; user: User}> {
         const user = await this.userService.getUser(userId);
         return {
