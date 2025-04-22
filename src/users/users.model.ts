@@ -1,10 +1,11 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from "typeorm"
 import "reflect-metadata";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class User {
     
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({
@@ -15,14 +16,16 @@ export class User {
     @Column()
     email: string;
 
-    @Column({
-        length: 50
-    })
+    @Column()
+    @Exclude()
     password: string;
 
     @CreateDateColumn()
+    @Exclude()
     createdAt: Date;
     
-    @Column()
+    @Column({
+        default: false
+    })
     hasActivePayment: boolean;
 }

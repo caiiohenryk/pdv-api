@@ -2,6 +2,8 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { User } from "./users.model"
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+import * as bcrypt from "bcrypt";
+import { CreateUserDto } from "./dto/create-user.dto";
 
 @Injectable()
 export class UserService {
@@ -11,20 +13,27 @@ export class UserService {
     ) {}
 
     // Registrar usuário
-     async registrarUsuario(user: User) {
+     async registrarUsuario(dto: CreateUserDto): Promise<User> {
         const existingUser = await this.userRepository.findOne({
-            where: {email: user.email}
+            where: {email: dto.email}
         });
         if (existingUser) throw new ConflictException('Email já existente');
+        // Encripta a senha usando a lib bcrypt
+        const hashPassword = await bcrypt.hash(dto.password, 10);
         
-        const newUser = await this.userRepository.save(user);
-        return newUser;
+        const newUser = await this.userRepository.create({
+            nome: dto.nome,
+            email: dto.email,
+            password: hashPassword,
+            hasActivePayment: false
+        });
+        return this.userRepository.save(newUser);
     }
 
     // Get Usuario
     async getUser(userId: string) {
         const findUser = await this.userRepository.findOne({
-            where: {id: userId}
+            where: { id: userId }
         });
         if (!findUser) throw new NotFoundException(`Usuario de id ${userId} não encontrado.`);
         return findUser;
